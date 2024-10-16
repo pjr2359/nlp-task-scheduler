@@ -1,0 +1,36 @@
+.App-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.task-input {
+  padding: 10px;
+  font-size: 16px;
+  margin-right: 10px;
+}
+
+.submit-button {
+  padding: 10px;
+  font-size: 16px;
+  background-color: #61dafb;
+  border: none;
+  cursor: pointer;
+}
+
+.task-list {
+  margin-top: 20px;
+  text-align: left;
+}
+
+.task-list ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.task-list li {
+  background: #282c34;
+  padding: 10px;
+  margin: 5px 0;
+  color: white;
+}
