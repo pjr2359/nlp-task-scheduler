@@ -1,28 +1,65 @@
+// App.js (Frontend)
+
 import React, { useState } from 'react';
-import { Container, TextField, Button, AppBar, Toolbar, Typography, Box } from '@mui/material';
+import {
+  Container, TextField, Button, AppBar, Toolbar, Typography, Box,
+} from '@mui/material';
 import './App.css';
 import axios from 'axios';
+import * as chrono from 'chrono-node';
 
 function App() {
-  const [task, setTask] = useState('');
+  const [taskInput, setTaskInput] = useState('');
   const [message, setMessage] = useState('');
+  const [tasks, setTasks] = useState([]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (task.trim() === '') {
+    if (taskInput.trim() === '') {
       setMessage('Please enter a task.');
       return;
     }
 
+    // Use chrono-node to parse the date and time from the task input
+    const parsedResults = chrono.parse(taskInput);
+    if (parsedResults.length === 0) {
+      setMessage('Could not extract date/time from the task.');
+      return;
+    }
+
+    const taskDate = parsedResults[0].start.date(); // Get the parsed date
+
+    // Extract the task description by removing the parsed date text from the input
+    const taskDescription = taskInput.replace(parsedResults[0].text, '').trim();
+
+    const newTask = {
+      description: taskDescription || parsedResults[0].text,
+      date: taskDate.toISOString(), // Convert date to ISO string
+    };
+
+    // Log the new task
+    console.log('New Task:', newTask);
+
     try {
-      const response = await axios.post('http://localhost:5000/api/tasks', { task });
-      setMessage(`Task submitted: ${response.data.task}`);
-      setTask(''); // Clear the input field
+      // Send the task to the backend and get the response
+      const response = await axios.post('http://localhost:5000/api/tasks', newTask);
+
+      // Use the response data
+      setMessage(`Task submitted: ${response.data.description}`);
+
+      // Add the new task to the tasks state using the response data
+      setTasks([...tasks, response.data]);
+
+      setTaskInput(''); // Clear the input field
     } catch (error) {
-      setMessage('Error submitting task.');
+      console.error('Error submitting task:', error.response?.data || error.message);
+      setMessage(`Error submitting task: ${error.response?.data?.message || error.message}`);
     }
   };
+
+  // Helper functions to group and display tasks (if any)
+  // ...
 
   return (
     <div className="App">
@@ -46,8 +83,8 @@ function App() {
             label="Task"
             variant="outlined"
             fullWidth
-            value={task}
-            onChange={(e) => setTask(e.target.value)}
+            value={taskInput}
+            onChange={(e) => setTaskInput(e.target.value)}
           />
           <Button type="submit" variant="contained" color="primary">
             Submit Task
@@ -58,10 +95,12 @@ function App() {
             {message}
           </Typography>
         )}
+
+        {/* Task List Rendering Code */}
+        {/* ... */}
       </Container>
     </div>
   );
 }
 
 export default App;
- 

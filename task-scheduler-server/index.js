@@ -1,36 +1,35 @@
+// index.js (Backend)
+
 const express = require('express');
-const bodyParser = require('body-parser');
 const cors = require('cors');
 
 const app = express();
 const port = 5000;
-const chrono = require('chrono-node');
 
 // Middleware
-app.use(bodyParser.json());
-app.use(cors());
+app.use(express.json()); // Parse JSON bodies
+app.use(cors()); // Enable CORS for all origins
 
-// Sample route to handle task submission
+// Route handler
 app.post('/api/tasks', (req, res) => {
-    const task = req.body.task;
-    
-    if (!task) {
-      return res.status(400).json({ message: 'Task is required' });
+    const { task, date } = req.body;
+  
+    if (!task || !date) {
+      console.error('Missing task or date in request body');
+      return res.status(400).json({ message: 'Task and date are required' });
     }
   
-    // Use chrono-node to parse date/time from the task string
-    const parsedDates = chrono.parseDate(task);
+    const savedTask = {
+      id: Date.now(),
+      task,
+      date,
+    };
   
-    if (!parsedDates) {
-      return res.status(400).json({ message: 'Could not extract a date/time from the task' });
-    }
+    console.log(`Task received: ${task} at ${date}`);
   
-    console.log(`Task received: ${task}`);
-    console.log(`Parsed date/time: ${parsedDates}`);
-  
-    // Send the response with the parsed date/time
-    res.status(201).json({ message: 'Task created', task, parsedDates });
+    res.status(201).json(savedTask);
   });
+  
 
 // Start the server
 app.listen(port, () => {

@@ -29,10 +29,11 @@
 }
 
 .task-list li {
-  background: #282c34;
+  background: #f0f0f0;
   padding: 10px;
   margin: 5px 0;
-  color: white;
+  color: #333;
+  border-radius: 5px;
 }
 
 .App {
