@@ -6,14 +6,12 @@ This is a personal task scheduling app that allows users to schedule tasks by ty
 ### Features:
 - Task scheduling with natural language input.
 - Task list with date and time display.
-- Calendar view for easy task date selection.
 - REST API integration for task storage and retrieval.
 
 ### Technologies Used:
 - **Frontend**: React, Material-UI
 - **Backend**: Node.js, Express.js
 - **NLP**: NLP processing with custom rules (using NLP.js or other libraries).
-- **Database**: (Optional) You can extend this with MongoDB or another database for persistent storage.
 
 ## Setup Instructions
 
