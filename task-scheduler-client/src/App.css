@@ -34,3 +34,11 @@
   margin: 5px 0;
   color: white;
 }
+
+.App {
+  text-align: center;
+}
+
+.MuiContainer-root {
+  padding: 20px;
+}

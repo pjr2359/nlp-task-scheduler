@@ -1,24 +1,32 @@
-# nlp-task-scheduler
-A Natural Language Parser used for task scheduling as I hate the calendar app...
+# Task Scheduler with NLP and Material-UI
 
-## Features
+## Project Description
+This is a personal task scheduling app that allows users to schedule tasks by typing in natural language (e.g., "Remind me to go to the gym every Monday at 7 PM"). The app features a clean UI with Material-UI components, including a calendar for selecting task dates and a list to display tasks in chronological order.
 
-- Accepts natural language input (e.g., "Remind me to go to the gym tomorrow at 7 PM")
-- Parses dates and times from input using `chrono-node`
-- Displays task confirmation and parsed date
-- Handles task scheduling on both backend (Express.js) and frontend (React)
+### Features:
+- Task scheduling with natural language input.
+- Task list with date and time display.
+- Calendar view for easy task date selection.
+- REST API integration for task storage and retrieval.
 
-## Getting Started
+### Technologies Used:
+- **Frontend**: React, Material-UI
+- **Backend**: Node.js, Express.js
+- **NLP**: NLP processing with custom rules (using NLP.js or other libraries).
+- **Database**: (Optional) You can extend this with MongoDB or another database for persistent storage.
 
-### Prerequisites
+## Setup Instructions
 
-- Node.js (v16 or later)
-- npm (Node Package Manager)
+1. Clone the repository:
 
-### Installation
+   ```bash
+   git clone <repository-url>
 
-1. **Clone the repository:**
+2.  Navigate to the client and server directories and install           dependencies:
+    cd task-scheduler-client
+    npm install
 
-```bash
-git clone https://github.com/your-username/nlp-task-scheduler.git
-cd nlp-task-scheduler
+    cd ../task-scheduler-server
+    npm install
+3. Start the client and server:
+    ./start-app.sh
