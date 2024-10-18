@@ -1,6 +1,6 @@
 // App.js (Frontend)
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Container, TextField, Button, AppBar, Toolbar, Typography, Box,
 } from '@mui/material';
@@ -12,6 +12,21 @@ function App() {
   const [taskInput, setTaskInput] = useState('');
   const [message, setMessage] = useState('');
   const [tasks, setTasks] = useState([]);
+
+  // Fetch tasks from the backend on component mount
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/tasks');
+        setTasks(response.data);
+      } catch (error) {
+        console.error('Error fetching tasks:', error.response?.data || error.message);
+        setMessage(`Error fetching tasks: ${error.response?.data?.message || error.message}`);
+      }
+    };
+
+    fetchTasks();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,7 +50,7 @@ function App() {
 
     const newTask = {
       description: taskDescription || parsedResults[0].text,
-      date: taskDate.toISOString(), // Convert date to ISO string
+      date: taskDate.toISOString(),
     };
 
     // Log the new task
@@ -48,8 +63,9 @@ function App() {
       // Use the response data
       setMessage(`Task submitted: ${response.data.description}`);
 
-      // Add the new task to the tasks state using the response data
-      setTasks([...tasks, response.data]);
+      // Fetch updated tasks
+      const updatedTasks = await axios.get('http://localhost:5000/api/tasks');
+      setTasks(updatedTasks.data);
 
       setTaskInput(''); // Clear the input field
     } catch (error) {
@@ -58,8 +74,17 @@ function App() {
     }
   };
 
-  // Helper functions to group and display tasks (if any)
-  // ...
+  // Function to delete a task
+  const deleteTask = async (id) => {
+    try {
+      await axios.delete(`http://localhost:5000/api/tasks/${id}`);
+      // Update the tasks state
+      setTasks(tasks.filter((task) => task._id !== id));
+    } catch (error) {
+      console.error('Error deleting task:', error.response?.data || error.message);
+      setMessage(`Error deleting task: ${error.response?.data?.message || error.message}`);
+    }
+  };
 
   return (
     <div className="App">
@@ -97,7 +122,27 @@ function App() {
         )}
 
         {/* Task List Rendering Code */}
-        {/* ... */}
+        {tasks.length > 0 && (
+          <Box style={{ marginTop: '30px' }}>
+            <Typography variant="h6">Scheduled Tasks:</Typography>
+            {tasks.map((task) => (
+              <Box key={task._id} style={{ padding: '10px', borderBottom: '1px solid #ccc' }}>
+                <Typography variant="body1">{task.description}</Typography>
+                <Typography variant="body2" color="textSecondary">
+                  {new Date(task.date).toLocaleString()}
+                </Typography>
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  onClick={() => deleteTask(task._id)}
+                  style={{ marginTop: '10px' }}
+                >
+                  Delete
+                </Button>
+              </Box>
+            ))}
+          </Box>
+        )}
       </Container>
     </div>
   );
