@@ -4,6 +4,7 @@ require('dotenv').config(); // Load environment variables from .env file
 const mongoose = require('mongoose');
 const express = require('express');
 const cors = require('cors');
+const { MongoMemoryServer } = require('mongodb-memory-server');
 
 const app = express();
 const port = 5000;
@@ -11,22 +12,6 @@ const port = 5000;
 // Middleware
 app.use(express.json()); // Parse JSON bodies
 app.use(cors()); // Enable CORS for all origins
-
-// MongoDB connection URI from environment variable
-const mongoURI = process.env.MONGO_URI;
-
-// Connect to MongoDB Atlas
-mongoose.connect(mongoURI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
-
-// Connection event listeners
-const db = mongoose.connection;
-db.on('error', console.error.bind(console, 'MongoDB connection error:'));
-db.once('open', () => {
-  console.log('Connected to MongoDB Atlas');
-});
 
 // Define the enhanced Task schema and model
 const taskSchema = new mongoose.Schema({
@@ -39,6 +24,39 @@ const taskSchema = new mongoose.Schema({
 });
 
 const Task = mongoose.model('Task', taskSchema);
+
+// MongoDB Memory Server setup and server start function
+async function startServer() {
+  // Create a new instance of MongoDB Memory Server
+  const mongod = await MongoMemoryServer.create();
+  const mongoURI = mongod.getUri();
+
+  try {
+    // Connect to the in-memory MongoDB instance
+    await mongoose.connect(mongoURI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    });
+
+    console.log('Connected to MongoDB Memory Server');
+
+    // Add cleanup handler for proper shutdown
+    process.on('SIGINT', async () => {
+      await mongoose.connection.close();
+      await mongod.stop();
+      console.log('MongoDB Memory Server stopped');
+      process.exit(0);
+    });
+
+    // Start Express server after MongoDB connection is established
+    app.listen(port, () => {
+      console.log(`Server is running on http://localhost:${port}`);
+    });
+  } catch (err) {
+    console.error('MongoDB connection error:', err);
+    process.exit(1);
+  }
+}
 
 // Route handlers
 
@@ -194,7 +212,8 @@ app.put('/api/tasks/batch/status', async (req, res) => {
   }
 });
 
-// Start the server
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+// Start the server with in-memory MongoDB
+startServer().catch(err => {
+  console.error('Failed to start server:', err);
+  process.exit(1);
 });
